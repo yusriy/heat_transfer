@@ -26,8 +26,6 @@ unsteady_state_conduc_1D <- function(rho = 500, cp = 837, k = 0.128,
 
   ## Numerical solution
   
-  #p = 1 # DON'T KNOW WHAT THIS IS FOR!!!
-  #m = 6 # DON'T KNOW WHAT THIS IS FOR!!!
   # To create a 2 times the 'mat_dim' by 'mat_dim' identity matrix
   # But not used, since I resorted a shortcut below.
   #mat_dim = 6
