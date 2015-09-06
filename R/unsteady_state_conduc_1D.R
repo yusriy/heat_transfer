@@ -1,90 +1,79 @@
 ##
 ## Unsteady-state 1-Dimensional Heat Conduction Function
+## Finite difference method
+##
 ## Taken and modified for R from:
-## 'Engineering Heat Transfer Scilab Solution' book, Chapter 4 example 9
+## 1. 'Engineering Heat Transfer Scilab Solution' book, Chapter 4 example 9
+## 2. Lorena Barba's lecture on solving Fourier equation using finite difference
 ##
 ## Author: Yusri Yusup, PhD
-## Date: 2015-09-04
+## Date created: 2015-09-04
 ##
+## Note: Units are in SI
 
-unsteady_state_conduc_1D <- function(rho = 500, cp = 837, k = 0.128,
-                                     dt = 1, dx = 0.1,  # dx in m (any units)
-                                                        # dt in s (any units)
-                                     init_temp = 20, temp_intro = 200,
-                                     distance = 6, time_step = 7) {
+unsteady_state_conduc_1D <- function(rho = 500, #density [kg m-3]
+                                     cp = 837,  #heat capacity [J kg-1 deg C-1]
+                                     k = 10000, #thermal conducvitiy [J deg C-1 kg-1]
+                                     dt = 0.01, #dt [s]
+                                     init_temp = 20, #init. temp. [deg C]
+                                     temp_intro = 200, #boundary temp. [deg C] 
+                                     distance = 20, #no. of distance iterations
+                                                    #Has to be 10x in meters [m]
+                                     act_dist = 2,  #Actual dist [m]
+                                     time_step = 1000 #no. of time step iterations
+                                     ) {
   
-  ## Constants (SI units)
   
-  # rou = Density [kg m-3]
-  # cp = Heat capacity [J deg C-1 kg-1]
-  # k = Thermal conductivity [W m-1 deg C-1]
+  # Calculate the thermal diffusivity of the material
+  alpha = k / (rho * cp) # Thermal diffusivity, alpha = k / (rou * cp) [m2 s-1]
   
-  alpha = k / (rho * cp) # Thermal diffusivity, k/(rou*cp) [m2 s-1]
-  
-  ## Numerical step constants, or grid specifications
+  # Numerical step constants, or grid specifications
+  dx = act_dist/(distance - 1) # Distance of each grid in meters [m]
   num_grid = dt / dx^2
 
   ## Numerical solution
+  # 1. Setting up the matrix
+  # 1.1 Create an NA-filled matrix to store results of temperature profile with distance
+  temp = matrix(ncol = distance, nrow = time_step+1)# Need to add the last row because
+  # of n+1
   
-  # To create a 2 times the 'mat_dim' by 'mat_dim' identity matrix
-  # But not used, since I resorted a shortcut below.
-  #mat_dim = 6
-  #A = 2 * diag(nrow = mat_dim) # Finite difference method, divide by half
-  
-  # Initial conditions
-  # init_temp = 20 # deg C
-  # temp_intro = 200 # deg C, temperature introduced into the solid
-  
-  ## For loop to create a row with 20's
-  # Column is time step (10 time steps)
-  # Row is distance
-  # time_step = 10 # Time step
-  # distance = 6 # Distance
-  
-  # Create an NA-filled matrix to store results of temperature profile with distance
-  temp = matrix(nrow = distance, ncol = time_step + 1)  # An extra time step because
-  # start from time step = 0
-  
-  # Up to 7 columns because of 7 time steps
-  for (j in 1:time_step) { # Fill columns and then rows
-    for (i in 1:distance) { # Fill rows
-      temp[i,j] = init_temp # I THINK THIS IS THE INITIAL TEMPERATURE OF THE 1-D SLAB
+  ## 1.2 Setting up the initial conditions matrix
+  # Up to 'distance' columns because of 'time_step' rows
+  for (i in 1:(time_step + 1)) { # Fill the rows 'time_step' first
+    for (j in 1:distance) { # Fill 'distance' columns second
+      if (j == 1) {
+        temp[i,j] = temp_intro # Boundary condition
+      } else {
+        temp[i,j] = init_temp # Initial condition of the slab
+      }
     }
   }
   
+  # 1.3 Create a matrix to store results of calculations
+  B = matrix(nrow = time_step, ncol = distance)
   
-  # Create a matrix to store results of calculations
-  B = matrix(nrow = distance, ncol = time_step )
-  
-  # Another for loop
-  # 200 is the temperature at the boundary and travels down the slab
+  # 2. The implementation of the finite difference method
   for (n in 1:time_step) {
-    for (i in 1:(distance - 2)) { # The number of dimensions would be the same in the end
-      B[i + 1, n] = alpha * num_grid * temp[i + 2, n] + temp[i, n]
-      B[1, n] = temp[i + 1, n] + temp_intro     # 1 because the beginning distance
-      B[6, n] = alpha * num_grid * 2 * temp[i + 1, n] # 6 because use the the 
-                                                      # last distance at the end
+    B[n,] = temp[n,]
+    for (i in 2:(distance - 1)) {
+      temp[n+1,i] = B[n,i] + 
+        (alpha * num_grid * (B[n,i+1] - (2 * B[n,i]) + B[n,i-1]))
     }
-    
-    temperature = 0.5 * B[,n] # Finite difference method, divide by 2, shortcut method
-    temp[, n + 1] = temperature
   }
   
   
   # Matrix of distance
-  dist <- 1:distance * dx # To calculate actual distance
-  dist_matrix <- matrix(data = dist, ncol = time_step + 1, nrow = distance)
-  
-  # Matrix of time
-  tim <- (0:(time_step)) * dt # To calculate actual time
-  time_matrix <- matrix(data = tim, ncol = time_step + 1, nrow = distance, 
+  dist <- 1:distance * dx # To calculate actual distance [m]
+  dist_matrix <- matrix(data = dist, ncol = distance, nrow = time_step + 1,
                         byrow = TRUE)
   
-  df <- cbind(dist,temp)  # To combine distance and temperature and make into a data
-  df <- as.data.frame(df) # frame
+  # Matrix of time
+  tim <- 0:time_step * dt # To calculate actual time
+  time_matrix <- matrix(data = tim, ncol = distance, nrow = time_step + 1, 
+                        byrow = FALSE)
   
-  return(list(df=df, Temperature = temp, dist_matrix = dist_matrix,
-              time_matrix = time_matrix)) 
+  return(list(Temperature = temp, dist_matrix = dist_matrix,
+              time_matrix = time_matrix, time_step = time_step)) 
   # Returns results as a dataframe and matrix of temp, distance, and time
   
 } ## END OF FUNCTION
