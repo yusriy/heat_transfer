@@ -15,6 +15,9 @@ result<-unsteady_state_conduc_1D()
 # You need to know the time step to plot
 time_step <- result$time_step + 1 # Always an extra step after
 
+## Add a progress bar
+pb <- txtProgressBar(min = 0, max = time_step, style = 3)
+
 # 2. The plots
 for (i in 1:time_step) {
   # creating a name for each plot file with leading zeros
@@ -29,6 +32,8 @@ for (i in 1:time_step) {
        main = paste('t = ', result$time_matrix[i,1], ' s'),
        ylim = c(-5,200))
   dev.off()
+  # Progress bar
+  setTxtProgressBar(pb, i)
 }
 
 # 3. Cleaning up

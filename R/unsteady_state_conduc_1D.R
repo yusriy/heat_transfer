@@ -12,15 +12,15 @@
 ## Note: Units are in SI
 
 unsteady_state_conduc_1D <- function(rho = 500, #density [kg m-3]
-                                     cp = 837,  #heat capacity [J kg-1 deg C-1]
-                                     k = 10000, #thermal conducvitiy [J deg C-1 kg-1]
+                                     cp = 837,  #heat capacity [J kg-1 degC-1]
+                                     k = 10000, #thermal conducvitiy [W m-1 degC-1] 
                                      dt = 0.01, #dt [s]
-                                     init_temp = 20, #init. temp. [deg C]
-                                     temp_intro = 200, #boundary temp. [deg C] 
+                                     init_temp = 20, #init. temp. [degC]
+                                     temp_intro = 200, #boundary temp. [degC] 
                                      distance = 20, #no. of distance iterations
                                                     #Has to be 10x in meters [m]
                                      act_dist = 2,  #Actual dist [m]
-                                     time_step = 1000 #no. of time step iterations
+                                     time_step = 100 #no. of time step iterations
                                      ) {
   
   
@@ -36,6 +36,9 @@ unsteady_state_conduc_1D <- function(rho = 500, #density [kg m-3]
   # 1.1 Create an NA-filled matrix to store results of temperature profile with distance
   temp = matrix(ncol = distance, nrow = time_step+1)# Need to add the last row because
   # of n+1
+  
+  ## Add a progress bar
+  pb <- txtProgressBar(min = 0, max = time_step + 1, style = 3)
   
   ## 1.2 Setting up the initial conditions matrix
   # Up to 'distance' columns because of 'time_step' rows
@@ -59,6 +62,7 @@ unsteady_state_conduc_1D <- function(rho = 500, #density [kg m-3]
       temp[n+1,i] = B[n,i] + 
         (alpha * num_grid * (B[n,i+1] - (2 * B[n,i]) + B[n,i-1]))
     }
+    setTxtProgressBar(pb, n)
   }
   
   
