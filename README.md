@@ -1,4 +1,4 @@
-# heat_transfer
+# Heat transfer calculations using R
 Some numerical solutions to heat transfer problems for IEK212/3 heat transfer and its application course.
 One of the first simple example is the unsteady-state one-dimensional heat conduction equation (Fourier equation).
 
