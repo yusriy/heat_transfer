@@ -22,7 +22,7 @@ unsteady_state_conduc_2D <- function(rho = 500, #density [kg m-3]
                                      #Has to be 10x in meters [m]
                                      act_distx = 2,  #Actual dist x [m]
                                      act_disty = 2,  # Actual dist y [m]
-                                     time_step = 1000 #no. of time step iterations
+                                     time_step = 200 #no. of time step iterations
 ) {
   
   
