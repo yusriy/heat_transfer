@@ -55,6 +55,8 @@ unsteady_state_conduc_1D <- function(rho = 500, #density [kg m-3]
   # 1.3 Create a matrix to store results of calculations
   B = matrix(nrow = time_step, ncol = distance)
   
+ 
+  
   # 2. The implementation of the finite difference method
   for (n in 1:time_step) {
     B[n,] = temp[n,]
@@ -65,7 +67,6 @@ unsteady_state_conduc_1D <- function(rho = 500, #density [kg m-3]
     setTxtProgressBar(pb, n)
   }
   
-  
   # Matrix of distance
   dist <- 1:distance * dx # To calculate actual distance [m]
   dist_matrix <- matrix(data = dist, ncol = distance, nrow = time_step + 1,
@@ -75,7 +76,6 @@ unsteady_state_conduc_1D <- function(rho = 500, #density [kg m-3]
   tim <- 0:time_step * dt # To calculate actual time
   time_matrix <- matrix(data = tim, ncol = distance, nrow = time_step + 1, 
                         byrow = FALSE)
-  
   return(list(Temperature = temp, dist_matrix = dist_matrix,
               time_matrix = time_matrix, time_step = time_step)) 
   # Returns results as a dataframe and matrix of temp, distance, and time

@@ -10,7 +10,7 @@
 
 # 1. Get the results
 source('R/unsteady_state_conduc_1D.R')
-result<-unsteady_state_conduc_1D()
+result<-unsteady_state_conduc_1D(time_step = 500)
 
 # You need to know the time step to plot
 time_step <- result$time_step + 1 # Always an extra step after
