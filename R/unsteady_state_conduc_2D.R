@@ -65,7 +65,7 @@ unsteady_state_conduc_2D <- function(rho = 500, #density [kg m-3]
   
   for (n in 1:time_step) {
     tempn = temp # The condition before
-    T_time[n] <- temp # To store the values with time
+    T_time[[n]] <- temp # To store the values with time
     for (i in 2:(distancex - 1)) {
       for (j in 2:(distancey - 1)) {
         temp[i,j] = tempn[i,j] + 
