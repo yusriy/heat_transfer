@@ -6,14 +6,14 @@
 ##
 ## Note: I used ImageMagick to combine all the png's
 ## On the Mac, I typed in the console of the directory where the png's are:
-## `$ convert *.png -delay 3 -loop 0 heat.gif`
+## `$ convert *.png -delay 3 -loop 0 heat2D.gif`
 
 require(colorspace)
 require(lattice)
 
 # 1. Get the results
 source('R/unsteady_state_conduc_2D.R')
-result<-unsteady_state_conduc_2D(time_step = 1000)
+result<-unsteady_state_conduc_2D(time_step = 400)
 
 # You need to know the time step to plot
 time_step <- result$time_step
